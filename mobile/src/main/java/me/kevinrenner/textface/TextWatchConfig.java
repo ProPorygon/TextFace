@@ -8,6 +8,9 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.Spinner;
 
 import com.flask.colorpicker.ColorPickerView;
 import com.flask.colorpicker.OnColorSelectedListener;
@@ -110,8 +113,28 @@ public class TextWatchConfig extends AppCompatActivity implements GoogleApiClien
             }
         });
 
+        Spinner fontSpinner = (Spinner) findViewById(R.id.font_spinner);
+        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this, R.array.fonts, android.R.layout.simple_spinner_item);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        fontSpinner.setAdapter(adapter);
+        fontSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
+                String font = (String) parent.getItemAtPosition(pos);
+                PutDataMapRequest request = PutDataMapRequest.create("/text_watch_config");
+                request.getDataMap().putString("FONT", font);
+                PutDataRequest dataRequest = request.asPutDataRequest();
+                Wearable.DataApi.putDataItem(apiClient, dataRequest);
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> adapterView) {
+                //Do nothing
+            }
+        });
+
         bgColorPreview = findViewById(R.id.bgcolor_preview);
-        bgColorPreview.setBackgroundColor(0x00000000);
+        bgColorPreview.setBackgroundColor(0xFF000000);
         textColorPreview = findViewById(R.id.textcolor_preview);
         textColorPreview.setBackgroundColor(0xFFFFFFFF);
     }

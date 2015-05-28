@@ -31,10 +31,9 @@ import com.google.android.gms.wearable.DataMapItem;
 import com.google.android.gms.wearable.Wearable;
 
 import java.util.TimeZone;
-import java.util.concurrent.TimeUnit;
 
 public class TextWatchFaceService extends CanvasWatchFaceService {
-    private Typeface WATCH_TEXT_TYPEFACE = Typeface.create(Typeface.SANS_SERIF, Typeface.NORMAL);
+    private Typeface WATCH_TEXT_TYPEFACE = Typeface.create("sans-serif-thin", 0);
 
     private Time mDisplayTime;
 
@@ -52,6 +51,8 @@ public class TextWatchFaceService extends CanvasWatchFaceService {
     private int mTextColor = Color.parseColor("white");
     private int mBackgroundColorAmbient = Color.parseColor("black");
     private int mTextColorAmbient = Color.parseColor("white");
+
+    private String mTextFont;
 
     final BroadcastReceiver mTimeZoneBroadcastReceiver = new BroadcastReceiver() {
         @Override
@@ -299,12 +300,29 @@ public class TextWatchFaceService extends CanvasWatchFaceService {
             canvas.drawText(minutesOnes, mXOffSet, mYOffSet + 100, mTextColorPaint);
         }
 
-        private void setColors() {
-            if(!isInAmbientMode()) {
+        private void setPrefs() {
+            if(!isInAmbientMode() && isVisible()) {
                 mBackgroundColorPaint.setColor(mBackgroundColor);
                 mTextColorPaint.setColor(mTextColor);
+                WATCH_TEXT_TYPEFACE = Typeface.create(mTextFont, 0);
+                mTextColorPaint.setTypeface(WATCH_TEXT_TYPEFACE);
                 invalidate();
             }
+        }
+
+        private void setTypeFace(String name) {
+            String typeface = "sans-serif";
+            if("Thin".equals(name))
+                typeface = "sans-serif-thin";
+            if("Light".equals(name))
+                typeface = "sans-serif-light";
+            if("Condensed".equals(name))
+                typeface = "sans-serif-condensed";
+            if("Regular".equals(name))
+                typeface = "sans-serif";
+            if("Medium".equals(name))
+                typeface = "sans-serif-medium";
+            mTextFont = typeface;
         }
 
         @Override
@@ -338,7 +356,7 @@ public class TextWatchFaceService extends CanvasWatchFaceService {
                     }
                 }
                 dataEventBuffer.release();
-                setColors();
+                setPrefs();
             }
         };
 
@@ -351,6 +369,9 @@ public class TextWatchFaceService extends CanvasWatchFaceService {
                 if(map.containsKey("TEXT_COLOR")) {
                     mTextColor = map.getInt("TEXT_COLOR");
                 }
+                if(map.containsKey("FONT")) {
+                    setTypeFace(map.getString("FONT"));
+                }
             }
         }
 
@@ -361,7 +382,7 @@ public class TextWatchFaceService extends CanvasWatchFaceService {
                     processConfigurationFor(dataItem);
                 }
                 dataItems.release();
-                setColors();
+                setPrefs();
             }
         };
 

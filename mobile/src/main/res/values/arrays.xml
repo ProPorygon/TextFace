@@ -1,4 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-
+    <string-array name="fonts">
+        <item>Thin</item>
+        <item>Light</item>
+        <item>Regular</item>
+        <item>Medium</item>
+        <item>Condensed</item>
+    </string-array>
 </resources>
