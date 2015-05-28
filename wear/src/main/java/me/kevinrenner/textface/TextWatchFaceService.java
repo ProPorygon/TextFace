@@ -14,14 +14,27 @@ import android.support.wearable.watchface.CanvasWatchFaceService;
 import android.support.wearable.watchface.WatchFaceService;
 import android.support.wearable.watchface.WatchFaceStyle;
 import android.text.format.Time;
+import android.util.Log;
 import android.view.SurfaceHolder;
 import android.view.WindowInsets;
+
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.common.api.ResultCallback;
+import com.google.android.gms.wearable.DataApi;
+import com.google.android.gms.wearable.DataEvent;
+import com.google.android.gms.wearable.DataEventBuffer;
+import com.google.android.gms.wearable.DataItem;
+import com.google.android.gms.wearable.DataItemBuffer;
+import com.google.android.gms.wearable.DataMap;
+import com.google.android.gms.wearable.DataMapItem;
+import com.google.android.gms.wearable.Wearable;
 
 import java.util.TimeZone;
 import java.util.concurrent.TimeUnit;
 
 public class TextWatchFaceService extends CanvasWatchFaceService {
-    private Typeface WATCH_TEXT_TYPEFACE = Typeface.create(Typeface.SERIF, Typeface.NORMAL);
+    private Typeface WATCH_TEXT_TYPEFACE = Typeface.create(Typeface.SANS_SERIF, Typeface.NORMAL);
 
     private Time mDisplayTime;
 
@@ -48,7 +61,9 @@ public class TextWatchFaceService extends CanvasWatchFaceService {
         }
     };
 
-    public class TextWatchFaceEngine extends Engine {
+    public class TextWatchFaceEngine extends Engine implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener{
+        private GoogleApiClient apiClient;
+
         private void initBackground() {
             mBackgroundColorPaint = new Paint();
             mBackgroundColorPaint.setColor(mBackgroundColor);
@@ -73,6 +88,11 @@ public class TextWatchFaceService extends CanvasWatchFaceService {
             mDisplayTime = new Time();
             initBackground();
             initDisplayText();
+            apiClient = new GoogleApiClient.Builder(TextWatchFaceService.this)
+                    .addConnectionCallbacks(this)
+                    .addOnConnectionFailedListener(this)
+                    .addApi(Wearable.API)
+                    .build();
         }
 
         @Override
@@ -86,12 +106,14 @@ public class TextWatchFaceService extends CanvasWatchFaceService {
                 }
                 mDisplayTime.clear(TimeZone.getDefault().getID());
                 mDisplayTime.setToNow();
+                apiClient.connect();
             }
             else {
                 if(mHasTimeZoneReceiverBeenRegistered) {
                     TextWatchFaceService.this.unregisterReceiver(mTimeZoneBroadcastReceiver);
                     mHasTimeZoneReceiverBeenRegistered = false;
                 }
+                releaseGoogleApiClient();
             }
         }
 
@@ -150,42 +172,50 @@ public class TextWatchFaceService extends CanvasWatchFaceService {
             invalidate();
         }
 
+        private void releaseGoogleApiClient() {
+            if(apiClient != null && apiClient.isConnected()) {
+                Wearable.DataApi.removeListener(apiClient, onDataChangedListener);
+                apiClient.disconnect();
+            }
+        }
+
         private void drawBackground(Canvas canvas, Rect bounds) {
             canvas.drawRect(0, 0, bounds.width(), bounds.height(), mBackgroundColorPaint);
         }
 
         private String getHours() {
-            String output = "time";
-            if(mDisplayTime.hour % 12 == 0)
+            String output = "";
+            int hour = mDisplayTime.hour % 12;
+            if(hour == 0)
                 output = "Twelve";
-            if(mDisplayTime.hour == 1)
+            if(hour == 1)
                 output = "One";
-            if(mDisplayTime.hour == 2)
+            if(hour == 2)
                 output = "Two";
-            if(mDisplayTime.hour == 3)
+            if(hour == 3)
                 output = "Three";
-            if(mDisplayTime.hour == 4)
+            if(hour == 4)
                 output = "Four";
-            if(mDisplayTime.hour == 5)
+            if(hour == 5)
                 output = "Five";
-            if(mDisplayTime.hour == 6)
+            if(hour == 6)
                 output = "Six";
-            if(mDisplayTime.hour == 7)
+            if(hour == 7)
                 output = "Seven";
-            if(mDisplayTime.hour == 8)
+            if(hour == 8)
                 output = "Eight";
-            if(mDisplayTime.hour == 9)
+            if(hour == 9)
                 output = "Nine";
-            if(mDisplayTime.hour == 10)
+            if(hour == 10)
                 output = "Ten";
-            if(mDisplayTime.hour == 11)
+            if(hour == 11)
                 output = "Eleven";
             return output;
         }
 
         private String getMinutesTens() {
             int tensValue = mDisplayTime.minute/10;
-            String output = "time";
+            String output = "";
             if(tensValue == 0)
                 output = "O";
             if(tensValue == 2)
@@ -201,7 +231,7 @@ public class TextWatchFaceService extends CanvasWatchFaceService {
 
         private String getMinutesOnes() {
             int onesValue = mDisplayTime.minute%10;
-            String output = "time";
+            String output = "";
             if(onesValue == 0)
                 output = "";
             if(onesValue == 1)
@@ -269,6 +299,14 @@ public class TextWatchFaceService extends CanvasWatchFaceService {
             canvas.drawText(minutesOnes, mXOffSet, mYOffSet + 100, mTextColorPaint);
         }
 
+        private void setColors() {
+            if(!isInAmbientMode()) {
+                mBackgroundColorPaint.setColor(mBackgroundColor);
+                mTextColorPaint.setColor(mTextColor);
+                invalidate();
+            }
+        }
+
         @Override
         public void onDraw(Canvas canvas, Rect bounds) {
             super.onDraw(canvas, bounds);
@@ -277,6 +315,65 @@ public class TextWatchFaceService extends CanvasWatchFaceService {
             drawTimeText(canvas);
         }
 
+        @Override
+        public void onDestroy() {
+            releaseGoogleApiClient();
+            super.onDestroy();
+        }
+
+        @Override
+        public void onConnected(Bundle bundle) {
+            Wearable.DataApi.addListener(apiClient, onDataChangedListener);
+            Wearable.DataApi.getDataItems(apiClient).setResultCallback(onConnectedResultCallback);
+            Log.d("TEXT_FACE", "connected");
+        }
+
+        private final DataApi.DataListener onDataChangedListener = new DataApi.DataListener() {
+            @Override
+            public void onDataChanged(DataEventBuffer dataEventBuffer) {
+                for(DataEvent event : dataEventBuffer) {
+                    if(event.getType() == DataEvent.TYPE_CHANGED) {
+                        DataItem item = event.getDataItem();
+                        processConfigurationFor(item);
+                    }
+                }
+                dataEventBuffer.release();
+                setColors();
+            }
+        };
+
+        private void processConfigurationFor(DataItem item) {
+            if("/text_watch_config".equals(item.getUri().getPath())) {
+                DataMap map = DataMapItem.fromDataItem(item).getDataMap();
+                if(map.containsKey("BG_COLOR")) {
+                    mBackgroundColor = map.getInt("BG_COLOR");
+                }
+                if(map.containsKey("TEXT_COLOR")) {
+                    mTextColor = map.getInt("TEXT_COLOR");
+                }
+            }
+        }
+
+        private final ResultCallback<DataItemBuffer> onConnectedResultCallback = new ResultCallback<DataItemBuffer>() {
+            @Override
+            public void onResult(DataItemBuffer dataItems) {
+                for(DataItem dataItem : dataItems) {
+                    processConfigurationFor(dataItem);
+                }
+                dataItems.release();
+                setColors();
+            }
+        };
+
+        @Override
+        public void onConnectionSuspended(int i) {
+            Log.e("TEXT_FACE", "suspended");
+        }
+
+        @Override
+        public void onConnectionFailed(ConnectionResult connectionResult) {
+            Log.e("TEXT_FACE", "failed");
+        }
     }
 
     @Override
