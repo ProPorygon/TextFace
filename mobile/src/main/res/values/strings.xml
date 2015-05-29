@@ -7,4 +7,10 @@
     <string name="background_color">Background Color</string>
     <string name="text_color">Text Color</string>
     <string name="font">Font</string>
+    <string name="saved_bg_color">BG_COLOR</string>
+    <string name="saved_text_color">TEXT_COLOR</string>
+    <string name="saved_font">FONT</string>
+    <string name="default_font">sans-serif</string>
+    <string name="default_background">0xFFFFFFFF</string>
+    <string name="default_text">0xFF000000</string>
 </resources>

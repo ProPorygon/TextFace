@@ -1,6 +1,8 @@
 package me.kevinrenner.textface;
 
+import android.content.Context;
 import android.content.DialogInterface;
+import android.content.SharedPreferences;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -31,9 +33,12 @@ public class TextWatchConfig extends AppCompatActivity implements GoogleApiClien
 
     private GoogleApiClient apiClient;
 
+    SharedPreferences preferences;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        preferences = TextWatchConfig.this.getPreferences(Context.MODE_PRIVATE);
         setContentView(R.layout.activity_text_watch_config);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
@@ -58,7 +63,7 @@ public class TextWatchConfig extends AppCompatActivity implements GoogleApiClien
                         .setOnColorSelectedListener(new OnColorSelectedListener() {
                             @Override
                             public void onColorSelected(int selectedColor) {
-                                //Do something, maybe
+                                //Do nothing
                             }
                         })
                         .setPositiveButton("ok", new ColorPickerClickListener() {
@@ -70,7 +75,7 @@ public class TextWatchConfig extends AppCompatActivity implements GoogleApiClien
                         .setNegativeButton("cancel", new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialogInterface, int i) {
-
+                                //Do nothing
                             }
                         })
                         .build()
@@ -93,7 +98,7 @@ public class TextWatchConfig extends AppCompatActivity implements GoogleApiClien
                         .setOnColorSelectedListener(new OnColorSelectedListener() {
                             @Override
                             public void onColorSelected(int selectedColor) {
-                                //Do something, maybe
+                                //Do nothing
                             }
                         })
                         .setPositiveButton("ok", new ColorPickerClickListener() {
@@ -105,7 +110,7 @@ public class TextWatchConfig extends AppCompatActivity implements GoogleApiClien
                         .setNegativeButton("cancel", new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialogInterface, int i) {
-
+                                //Do nothing
                             }
                         })
                         .build()
@@ -113,6 +118,7 @@ public class TextWatchConfig extends AppCompatActivity implements GoogleApiClien
             }
         });
 
+        //Text Font
         Spinner fontSpinner = (Spinner) findViewById(R.id.font_spinner);
         ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this, R.array.fonts, android.R.layout.simple_spinner_item);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
@@ -125,6 +131,8 @@ public class TextWatchConfig extends AppCompatActivity implements GoogleApiClien
                 request.getDataMap().putString("FONT", font);
                 PutDataRequest dataRequest = request.asPutDataRequest();
                 Wearable.DataApi.putDataItem(apiClient, dataRequest);
+                SharedPreferences.Editor editor = preferences.edit();
+                editor.putString(getString(R.string.saved_font), font);
             }
 
             @Override
@@ -134,9 +142,10 @@ public class TextWatchConfig extends AppCompatActivity implements GoogleApiClien
         });
 
         bgColorPreview = findViewById(R.id.bgcolor_preview);
-        bgColorPreview.setBackgroundColor(0xFF000000);
+        bgColorPreview.setBackgroundColor(preferences.getInt(getString(R.string.saved_bg_color), R.string.default_background));
         textColorPreview = findViewById(R.id.textcolor_preview);
-        textColorPreview.setBackgroundColor(0xFFFFFFFF);
+        textColorPreview.setBackgroundColor(preferences.getInt(getString(R.string.saved_text_color), R.string.default_text));
+        fontSpinner.setSelection(adapter.getPosition(preferences.getString(getString(R.string.saved_font), getString(R.string.default_font))));
     }
 
     @Override
@@ -173,16 +182,20 @@ public class TextWatchConfig extends AppCompatActivity implements GoogleApiClien
 
     public void onColorSelected(int color, String tag) {
         PutDataMapRequest request = PutDataMapRequest.create("/text_watch_config");
+        SharedPreferences.Editor editor = preferences.edit();
         if(TAG_BG_COLOR_CHOOSER.equals(tag)) {
             bgColorPreview.setBackgroundColor(color);
             request.getDataMap().putInt("BG_COLOR", color);
+            editor.putInt(getString(R.string.saved_bg_color), color);
         }
         else {
             textColorPreview.setBackgroundColor(color);
             request.getDataMap().putInt("TEXT_COLOR", color);
+            editor.putInt(getString(R.string.saved_text_color), color);
         }
         PutDataRequest dataRequest = request.asPutDataRequest();
         Wearable.DataApi.putDataItem(apiClient, dataRequest);
+        editor.commit();
     }
 
     @Override

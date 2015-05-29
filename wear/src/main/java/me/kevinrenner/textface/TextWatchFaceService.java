@@ -4,6 +4,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
@@ -33,7 +34,7 @@ import com.google.android.gms.wearable.Wearable;
 import java.util.TimeZone;
 
 public class TextWatchFaceService extends CanvasWatchFaceService {
-    private Typeface WATCH_TEXT_TYPEFACE = Typeface.create("sans-serif-thin", 0);
+    private Typeface WATCH_TEXT_TYPEFACE = Typeface.create("sans-serif-light", 0);
 
     private Time mDisplayTime;
 
@@ -61,6 +62,8 @@ public class TextWatchFaceService extends CanvasWatchFaceService {
             mDisplayTime.setToNow();
         }
     };
+
+    SharedPreferences preferences = getApplicationContext().getSharedPreferences("TEXT_WATCH_PREFS", MODE_PRIVATE);
 
     public class TextWatchFaceEngine extends Engine implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener{
         private GoogleApiClient apiClient;
@@ -218,7 +221,7 @@ public class TextWatchFaceService extends CanvasWatchFaceService {
             int tensValue = mDisplayTime.minute/10;
             String output = "";
             if(tensValue == 0)
-                output = "O";
+                output = "o'";
             if(tensValue == 2)
                 output = "Twenty";
             if(tensValue == 3)
