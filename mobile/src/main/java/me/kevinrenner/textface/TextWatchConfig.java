@@ -18,6 +18,8 @@ import com.flask.colorpicker.ColorPickerView;
 import com.flask.colorpicker.OnColorSelectedListener;
 import com.flask.colorpicker.builder.ColorPickerClickListener;
 import com.flask.colorpicker.builder.ColorPickerDialogBuilder;
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdView;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.wearable.PutDataMapRequest;
@@ -35,12 +37,18 @@ public class TextWatchConfig extends AppCompatActivity implements GoogleApiClien
 
     SharedPreferences preferences;
 
+    AdView mAdView;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         preferences = TextWatchConfig.this.getPreferences(Context.MODE_PRIVATE);
         setContentView(R.layout.activity_text_watch_config);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setTitle(getString(R.string.title));
+
+        mAdView = (AdView) findViewById(R.id.adView);
+        mAdView.loadAd(new AdRequest.Builder().build());
 
         apiClient = new GoogleApiClient.Builder(this)
                 .addConnectionCallbacks(this)
@@ -58,6 +66,7 @@ public class TextWatchConfig extends AppCompatActivity implements GoogleApiClien
                         .with(TextWatchConfig.this)
                         .setTitle("Choose Color")
                         .initialColor(currentColor)
+                        .lightnessSliderOnly()
                         .wheelType(ColorPickerView.WHEEL_TYPE.FLOWER)
                         .density(12)
                         .setOnColorSelectedListener(new OnColorSelectedListener() {
@@ -93,6 +102,7 @@ public class TextWatchConfig extends AppCompatActivity implements GoogleApiClien
                         .with(TextWatchConfig.this)
                         .setTitle("Choose Color")
                         .initialColor(currentColor)
+                        .lightnessSliderOnly()
                         .wheelType(ColorPickerView.WHEEL_TYPE.FLOWER)
                         .density(12)
                         .setOnColorSelectedListener(new OnColorSelectedListener() {
@@ -133,6 +143,7 @@ public class TextWatchConfig extends AppCompatActivity implements GoogleApiClien
                 Wearable.DataApi.putDataItem(apiClient, dataRequest);
                 SharedPreferences.Editor editor = preferences.edit();
                 editor.putString(getString(R.string.saved_font), font);
+                editor.commit();
             }
 
             @Override

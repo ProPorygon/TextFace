@@ -13,4 +13,6 @@
     <string name="default_font">sans-serif</string>
     <string name="default_background">0xFFFFFFFF</string>
     <string name="default_text">0xFF000000</string>
+    <string name="title">Text Face Settings</string>
+    <string name="banner_ad_unit_id">ca-app-pub-3940256099942544/6300978111</string>
 </resources>

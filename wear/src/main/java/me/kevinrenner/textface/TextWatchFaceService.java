@@ -34,7 +34,8 @@ import com.google.android.gms.wearable.Wearable;
 import java.util.TimeZone;
 
 public class TextWatchFaceService extends CanvasWatchFaceService {
-    private Typeface WATCH_TEXT_TYPEFACE = Typeface.create("sans-serif-light", 0);
+
+    private Typeface WATCH_TEXT_TYPEFACE;
 
     private Time mDisplayTime;
 
@@ -48,8 +49,8 @@ public class TextWatchFaceService extends CanvasWatchFaceService {
     private float mXOffSet;
     private float mYOffSet;
 
-    private int mBackgroundColor = Color.parseColor("black");
-    private int mTextColor = Color.parseColor("white");
+    private int mBackgroundColor;
+    private int mTextColor;
     private int mBackgroundColorAmbient = Color.parseColor("black");
     private int mTextColorAmbient = Color.parseColor("white");
 
@@ -63,19 +64,20 @@ public class TextWatchFaceService extends CanvasWatchFaceService {
         }
     };
 
-    SharedPreferences preferences = getApplicationContext().getSharedPreferences("TEXT_WATCH_PREFS", MODE_PRIVATE);
-
     public class TextWatchFaceEngine extends Engine implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener{
         private GoogleApiClient apiClient;
 
         private void initBackground() {
+            mBackgroundColor = Color.parseColor("black");
             mBackgroundColorPaint = new Paint();
             mBackgroundColorPaint.setColor(mBackgroundColor);
         }
 
         private void initDisplayText() {
+            mTextColor = Color.parseColor("white");
             mTextColorPaint = new Paint();
             mTextColorPaint.setColor(mTextColor);
+            WATCH_TEXT_TYPEFACE = Typeface.create("sans-serif-light", 0);
             mTextColorPaint.setTypeface(WATCH_TEXT_TYPEFACE);
             mTextColorPaint.setAntiAlias(true);
             mTextColorPaint.setTextSize(getResources().getDimension(R.dimen.text_size));
