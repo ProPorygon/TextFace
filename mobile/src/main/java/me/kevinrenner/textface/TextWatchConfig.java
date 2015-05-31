@@ -27,8 +27,6 @@ import com.google.android.gms.wearable.PutDataRequest;
 import com.google.android.gms.wearable.Wearable;
 
 public class TextWatchConfig extends AppCompatActivity implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener{
-    private static final String TAG_BG_COLOR_CHOOSER = "bg_chooser";
-    private static final String TAG_TEXT_COLOR_CHOOSER = "text_chooser";
 
     private View bgColorPreview;
     private View textColorPreview;
@@ -38,6 +36,10 @@ public class TextWatchConfig extends AppCompatActivity implements GoogleApiClien
     SharedPreferences preferences;
 
     AdView mAdView;
+
+    private int mBGColor;
+    private int mTextColor;
+    private String mTextFont;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -78,7 +80,12 @@ public class TextWatchConfig extends AppCompatActivity implements GoogleApiClien
                         .setPositiveButton("ok", new ColorPickerClickListener() {
                             @Override
                             public void onClick(DialogInterface dialogInterface, int selectedColor, Integer[] allColors) {
-                                onColorSelected(selectedColor, TAG_BG_COLOR_CHOOSER);
+                                mBGColor = selectedColor;
+                                bgColorPreview.setBackgroundColor(selectedColor);
+                                SharedPreferences.Editor editor = preferences.edit();
+                                editor.putInt(getString(R.string.saved_bg_color), selectedColor);
+                                putData();
+                                editor.commit();
                             }
                         })
                         .setNegativeButton("cancel", new DialogInterface.OnClickListener() {
@@ -114,7 +121,12 @@ public class TextWatchConfig extends AppCompatActivity implements GoogleApiClien
                         .setPositiveButton("ok", new ColorPickerClickListener() {
                             @Override
                             public void onClick(DialogInterface dialogInterface, int selectedColor, Integer[] allColors) {
-                                onColorSelected(selectedColor, TAG_TEXT_COLOR_CHOOSER);
+                                mTextColor = selectedColor;
+                                textColorPreview.setBackgroundColor(selectedColor);
+                                SharedPreferences.Editor editor = preferences.edit();
+                                editor.putInt(getString(R.string.saved_text_color), selectedColor);
+                                editor.commit();
+                                putData();
                             }
                         })
                         .setNegativeButton("cancel", new DialogInterface.OnClickListener() {
@@ -137,13 +149,11 @@ public class TextWatchConfig extends AppCompatActivity implements GoogleApiClien
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
                 String font = (String) parent.getItemAtPosition(pos);
-                PutDataMapRequest request = PutDataMapRequest.create("/text_watch_config");
-                request.getDataMap().putString("FONT", font);
-                PutDataRequest dataRequest = request.asPutDataRequest();
-                Wearable.DataApi.putDataItem(apiClient, dataRequest);
+                mTextFont = font;
                 SharedPreferences.Editor editor = preferences.edit();
                 editor.putString(getString(R.string.saved_font), font);
                 editor.commit();
+                putData();
             }
 
             @Override
@@ -154,9 +164,12 @@ public class TextWatchConfig extends AppCompatActivity implements GoogleApiClien
 
         bgColorPreview = findViewById(R.id.bgcolor_preview);
         bgColorPreview.setBackgroundColor(preferences.getInt(getString(R.string.saved_bg_color), R.string.default_background));
+        mBGColor = preferences.getInt(getString(R.string.saved_bg_color), R.string.default_background);
         textColorPreview = findViewById(R.id.textcolor_preview);
         textColorPreview.setBackgroundColor(preferences.getInt(getString(R.string.saved_text_color), R.string.default_text));
+        mTextColor = preferences.getInt(getString(R.string.saved_text_color), R.string.default_text);
         fontSpinner.setSelection(adapter.getPosition(preferences.getString(getString(R.string.saved_font), getString(R.string.default_font))));
+        mTextFont = preferences.getString(getString(R.string.saved_font), getString(R.string.default_font));
     }
 
     @Override
@@ -191,22 +204,13 @@ public class TextWatchConfig extends AppCompatActivity implements GoogleApiClien
         return super.onOptionsItemSelected(item);
     }
 
-    public void onColorSelected(int color, String tag) {
+    private void putData() {
         PutDataMapRequest request = PutDataMapRequest.create("/text_watch_config");
-        SharedPreferences.Editor editor = preferences.edit();
-        if(TAG_BG_COLOR_CHOOSER.equals(tag)) {
-            bgColorPreview.setBackgroundColor(color);
-            request.getDataMap().putInt("BG_COLOR", color);
-            editor.putInt(getString(R.string.saved_bg_color), color);
-        }
-        else {
-            textColorPreview.setBackgroundColor(color);
-            request.getDataMap().putInt("TEXT_COLOR", color);
-            editor.putInt(getString(R.string.saved_text_color), color);
-        }
+        request.getDataMap().putInt("BG_COLOR", mBGColor);
+        request.getDataMap().putInt("TEXT_COLOR", mTextColor);
+        request.getDataMap().putString("FONT", mTextFont);
         PutDataRequest dataRequest = request.asPutDataRequest();
         Wearable.DataApi.putDataItem(apiClient, dataRequest);
-        editor.commit();
     }
 
     @Override

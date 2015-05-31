@@ -99,6 +99,7 @@ public class TextWatchFaceService extends CanvasWatchFaceService {
                     .addOnConnectionFailedListener(this)
                     .addApi(Wearable.API)
                     .build();
+            Wearable.DataApi.getDataItems(apiClient).setResultCallback(onConnectedResultCallback);
         }
 
         @Override
@@ -316,7 +317,7 @@ public class TextWatchFaceService extends CanvasWatchFaceService {
         }
 
         private void setTypeFace(String name) {
-            String typeface = "sans-serif";
+            String typeface = "sans-serif-light";
             if("Thin".equals(name))
                 typeface = "sans-serif-thin";
             if("Light".equals(name))
