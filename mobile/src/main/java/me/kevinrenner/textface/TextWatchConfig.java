@@ -241,16 +241,13 @@ public class TextWatchConfig extends AppCompatActivity implements GoogleApiClien
 
     @Override
     public void onConnected(Bundle bundle) {
-        Log.d("TEXT_FACE", "connected");
     }
 
     @Override
     public void onConnectionSuspended(int i) {
-        Log.e("TEXT_FACE", "suspended");
     }
 
     @Override
     public void onConnectionFailed(ConnectionResult connectionResult) {
-        Log.e("TEXT_FACE", "failed");
     }
 }

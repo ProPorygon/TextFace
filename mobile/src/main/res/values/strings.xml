@@ -12,7 +12,8 @@
     <string name="default_background">0xFFFFFFFF</string>
     <string name="default_text">0xFF000000</string>
     <string name="title">Text Face Settings</string>
-    <string name="banner_ad_unit_id">ca-app-pub-3940256099942544/6300978111</string>
+    <string name="banner_ad_unit_id">***REMOVED***</string>
+    <string name="banner_ad_test_unit_id">ca-app-pub-3940256099942544/6300978111</string>
     <string name="action_license">Licenses</string>
     <string name="licenses">This application uses code from
         <![CDATA[<a href="https://android-arsenal.com/details/1/1693">Color Picker</a>]]>

@@ -349,7 +349,6 @@ public class TextWatchFaceService extends CanvasWatchFaceService {
         public void onConnected(Bundle bundle) {
             Wearable.DataApi.addListener(apiClient, onDataChangedListener);
             Wearable.DataApi.getDataItems(apiClient).setResultCallback(onConnectedResultCallback);
-            Log.d("TEXT_FACE", "connected");
         }
 
         private final DataApi.DataListener onDataChangedListener = new DataApi.DataListener() {
@@ -394,12 +393,10 @@ public class TextWatchFaceService extends CanvasWatchFaceService {
 
         @Override
         public void onConnectionSuspended(int i) {
-            Log.e("TEXT_FACE", "suspended");
         }
 
         @Override
         public void onConnectionFailed(ConnectionResult connectionResult) {
-            Log.e("TEXT_FACE", "failed");
         }
     }
 
