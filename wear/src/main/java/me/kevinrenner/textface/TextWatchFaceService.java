@@ -223,8 +223,8 @@ public class TextWatchFaceService extends CanvasWatchFaceService {
         private String getMinutesTens() {
             int tensValue = mDisplayTime.minute/10;
             String output = "";
-            if(tensValue == 0)
-                output = "o'";
+            if(mDisplayTime.minute == 0)
+                output = "o'Clock";
             if(tensValue == 2)
                 output = "Twenty";
             if(tensValue == 3)
@@ -259,8 +259,6 @@ public class TextWatchFaceService extends CanvasWatchFaceService {
                 output = "Eight";
             if(onesValue == 9)
                 output = "Nine";
-            if(mDisplayTime.minute == 0)
-                output = "Clock";
             return output;
         }
 
@@ -294,7 +292,9 @@ public class TextWatchFaceService extends CanvasWatchFaceService {
             String hours = getHours();
             String minutesTens;
             String minutesOnes = "";
-            if(mDisplayTime.minute > 9 && mDisplayTime.minute < 20) {
+            if(mDisplayTime.minute > 0 && mDisplayTime.minute <= 9)
+                minutesTens = getMinutesOnes();
+            else if(mDisplayTime.minute > 9 && mDisplayTime.minute < 20) {
                 minutesTens = getTeens();
             }
             else {

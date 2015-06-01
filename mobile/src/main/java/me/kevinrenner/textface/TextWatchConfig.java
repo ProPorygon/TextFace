@@ -1,11 +1,14 @@
 package me.kevinrenner.textface;
 
+import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.text.Html;
+import android.text.method.LinkMovementMethod;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -13,6 +16,7 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Spinner;
+import android.widget.TextView;
 
 import com.flask.colorpicker.ColorPickerView;
 import com.flask.colorpicker.OnColorSelectedListener;
@@ -192,9 +196,24 @@ public class TextWatchConfig extends AppCompatActivity implements GoogleApiClien
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
+        if (id == R.id.action_license) {
+            AlertDialog dialog =new AlertDialog.Builder(this)
+                    .setTitle(getString(R.string.action_license))
+                    .setMessage(Html.fromHtml(getResources().getString(R.string.licenses)))
+                    .setPositiveButton(android.R.string.ok, null)
+                    .create();
+            dialog.show();
+            ((TextView)dialog.findViewById(android.R.id.message)).setMovementMethod(LinkMovementMethod.getInstance());
             return true;
+
+        }
+        if(id == R.id.action_about) {
+            new AlertDialog.Builder(this)
+                    .setTitle(R.string.action_about)
+                    .setMessage(getString(R.string.about) + BuildConfig.VERSION_NAME)
+                    .setPositiveButton(android.R.string.ok, null)
+                    .create()
+                    .show();
         }
         if(id == android.R.id.home) {
             finish();

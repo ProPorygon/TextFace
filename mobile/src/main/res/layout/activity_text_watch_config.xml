@@ -67,9 +67,9 @@
             <Spinner
                 android:id="@+id/font_spinner"
                 android:layout_alignParentEnd="true"
-                android:layout_width="fill_parent"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_toEndOf="@+id/textView"></Spinner>
+                android:dropDownWidth="wrap_content"></Spinner>
         </RelativeLayout>
     </LinearLayout>
     <com.google.android.gms.ads.AdView
