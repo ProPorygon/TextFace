@@ -4,8 +4,10 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.text.Html;
 import android.text.method.LinkMovementMethod;
@@ -167,11 +169,12 @@ public class TextWatchConfig extends AppCompatActivity implements GoogleApiClien
         });
 
         bgColorPreview = findViewById(R.id.bgcolor_preview);
-        bgColorPreview.setBackgroundColor(preferences.getInt(getString(R.string.saved_bg_color), R.string.default_background));
-        mBGColor = preferences.getInt(getString(R.string.saved_bg_color), R.string.default_background);
+        bgColorPreview.setBackgroundColor(preferences.getInt(getString(R.string.saved_bg_color), Color.parseColor(getString(R.string.default_background))));
+        mBGColor = preferences.getInt(getString(R.string.saved_bg_color), Color.parseColor(getString(R.string.default_background)));
         textColorPreview = findViewById(R.id.textcolor_preview);
-        textColorPreview.setBackgroundColor(preferences.getInt(getString(R.string.saved_text_color), R.string.default_text));
-        mTextColor = preferences.getInt(getString(R.string.saved_text_color), R.string.default_text);
+        textColorPreview.setBackgroundColor(preferences.getInt(getString(R.string.saved_text_color), Color.parseColor(getString(R.string.default_text))));
+        mTextColor = preferences.getInt(getString(R.string.saved_text_color), Color.parseColor(getString(R.string.default_text)));
+        Log.d("", mTextColor + "");
         fontSpinner.setSelection(adapter.getPosition(preferences.getString(getString(R.string.saved_font), getString(R.string.default_font))));
         mTextFont = preferences.getString(getString(R.string.saved_font), getString(R.string.default_font));
     }

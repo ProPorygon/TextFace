@@ -8,11 +8,10 @@
     <string name="saved_bg_color">BG_COLOR</string>
     <string name="saved_text_color">TEXT_COLOR</string>
     <string name="saved_font">FONT</string>
-    <string name="default_font">sans-serif</string>
-    <string name="default_background">0xFFFFFFFF</string>
-    <string name="default_text">0xFF000000</string>
+    <string name="default_font">sans-serif-light</string>
+    <string name="default_background">black</string>
+    <string name="default_text">white</string>
     <string name="title">Text Face Settings</string>
-    <string name="banner_ad_unit_id">***REMOVED***</string>
     <string name="banner_ad_test_unit_id">ca-app-pub-3940256099942544/6300978111</string>
     <string name="action_license">Licenses</string>
     <string name="licenses">This application uses code from
