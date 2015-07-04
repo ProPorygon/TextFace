@@ -36,15 +36,18 @@ import java.util.TimeZone;
 public class TextWatchFaceService extends CanvasWatchFaceService {
 
     private Typeface WATCH_TEXT_TYPEFACE;
+    private Typeface DATE_TEXT_TYPEFACE;
 
     private Time mDisplayTime;
 
     private Paint mBackgroundColorPaint;
     private Paint mTextColorPaint;
+    private Paint mDatePaint;
 
     private boolean mHasTimeZoneReceiverBeenRegistered = false;
     private boolean mIsInMuteMode;
     private boolean mIsLowBitAmbient;
+    private boolean mShowDate = false;
 
     private float mXOffSet;
     private float mYOffSet;
@@ -83,6 +86,15 @@ public class TextWatchFaceService extends CanvasWatchFaceService {
             mTextColorPaint.setTextSize(getResources().getDimension(R.dimen.text_size));
         }
 
+        private void initDateText() {
+            DATE_TEXT_TYPEFACE = Typeface.create("sans-serif", 0);
+            mDatePaint = new Paint();
+            mDatePaint.setColor(mTextColor);
+            mDatePaint.setTextSize(getResources().getDimension(R.dimen.date_size));
+            mDatePaint.setTypeface(DATE_TEXT_TYPEFACE);
+            mDatePaint.setAntiAlias(true);
+        }
+
         @Override
         public void onCreate(SurfaceHolder holder) {
             super.onCreate(holder);
@@ -94,6 +106,7 @@ public class TextWatchFaceService extends CanvasWatchFaceService {
             mDisplayTime = new Time();
             initBackground();
             initDisplayText();
+            initDateText();
             apiClient = new GoogleApiClient.Builder(TextWatchFaceService.this)
                     .addConnectionCallbacks(this)
                     .addOnConnectionFailedListener(this)
@@ -149,14 +162,17 @@ public class TextWatchFaceService extends CanvasWatchFaceService {
             super.onAmbientModeChanged(inAmbientMode);
             if(inAmbientMode) {
                 mTextColorPaint.setColor(mTextColorAmbient);
+                mDatePaint.setColor(mTextColorAmbient);
                 mBackgroundColorPaint.setColor(mBackgroundColorAmbient);
             }
             else {
                 mTextColorPaint.setColor(mTextColor);
+                mDatePaint.setColor(mTextColor);
                 mBackgroundColorPaint.setColor(mBackgroundColor);
             }
             if(mIsLowBitAmbient) {
                 mTextColorPaint.setAntiAlias(!inAmbientMode);
+                mDatePaint.setAntiAlias(!inAmbientMode);
             }
             invalidate();
         }
@@ -167,8 +183,6 @@ public class TextWatchFaceService extends CanvasWatchFaceService {
             boolean isDeviceMuted = (interruptionFilter == WatchFaceService.INTERRUPTION_FILTER_NONE);
             if(mIsInMuteMode != isDeviceMuted) {
                 mIsInMuteMode = isDeviceMuted;
-                int alpha = (isDeviceMuted) ? 100 : 255;
-                mTextColorPaint.setAlpha(alpha);
                 invalidate();
             }
         }
@@ -288,10 +302,19 @@ public class TextWatchFaceService extends CanvasWatchFaceService {
             return output;
         }
 
+        private String getDate() {
+            int month = mDisplayTime.month + 1;
+            int day = mDisplayTime.monthDay;
+            int year = mDisplayTime.year;
+            String output = month + "/" + day + "/" + year;
+            return output;
+        }
+
         private void drawTimeText(Canvas canvas) {
             String hours = getHours();
             String minutesTens;
             String minutesOnes = "";
+            String date = getDate();
             if(mDisplayTime.minute > 0 && mDisplayTime.minute <= 9)
                 minutesTens = getMinutesOnes();
             else if(mDisplayTime.minute > 9 && mDisplayTime.minute < 20) {
@@ -301,6 +324,9 @@ public class TextWatchFaceService extends CanvasWatchFaceService {
                 minutesTens = getMinutesTens();
                 minutesOnes = getMinutesOnes();
             }
+
+            if(mShowDate)
+                canvas.drawText(date, mXOffSet + 85, mYOffSet - 60, mDatePaint);
             canvas.drawText(hours, mXOffSet, mYOffSet, mTextColorPaint);
             canvas.drawText(minutesTens, mXOffSet, mYOffSet + 50, mTextColorPaint);
             canvas.drawText(minutesOnes, mXOffSet, mYOffSet + 100, mTextColorPaint);
@@ -310,6 +336,7 @@ public class TextWatchFaceService extends CanvasWatchFaceService {
             if(!isInAmbientMode() && isVisible()) {
                 mBackgroundColorPaint.setColor(mBackgroundColor);
                 mTextColorPaint.setColor(mTextColor);
+                mDatePaint.setColor(mTextColor);
                 WATCH_TEXT_TYPEFACE = Typeface.create(mTextFont, 0);
                 mTextColorPaint.setTypeface(WATCH_TEXT_TYPEFACE);
                 invalidate();
@@ -376,6 +403,9 @@ public class TextWatchFaceService extends CanvasWatchFaceService {
                 }
                 if(map.containsKey("FONT")) {
                     setTypeFace(map.getString("FONT"));
+                }
+                if(map.containsKey("DATE")) {
+                    mShowDate = map.getBoolean("DATE");
                 }
             }
         }

@@ -12,7 +12,7 @@
     <string name="default_background">black</string>
     <string name="default_text">white</string>
     <string name="title">Text Face Settings</string>
-    <string name="banner_ad_test_unit_id">ca-app-pub-3940256099942544/6300978111</string>
+    <string name="banner_ad_unit_id">ca-app-pub-3940256099942544/6300978111</string>
     <string name="action_license">Licenses</string>
     <string name="licenses">This application uses code from
         <![CDATA[<a href="https://android-arsenal.com/details/1/1693">Color Picker</a>]]>
@@ -20,4 +20,5 @@
         <![CDATA[<a href="http://opensource.org/licenses/Apache-2.0">Apache License 2.0</a>]]></string>
     <string name="action_about">About</string>
     <string name="about">Text Watch Face by Kevin Renner: version </string>
+    <string name="date_text">Show Date</string>
 </resources>

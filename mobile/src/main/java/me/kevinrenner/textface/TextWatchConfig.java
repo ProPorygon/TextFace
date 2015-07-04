@@ -17,6 +17,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.CheckBox;
 import android.widget.Spinner;
 import android.widget.TextView;
 
@@ -46,6 +47,7 @@ public class TextWatchConfig extends AppCompatActivity implements GoogleApiClien
     private int mBGColor;
     private int mTextColor;
     private String mTextFont;
+    private boolean mShowDate;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -90,8 +92,8 @@ public class TextWatchConfig extends AppCompatActivity implements GoogleApiClien
                                 bgColorPreview.setBackgroundColor(selectedColor);
                                 SharedPreferences.Editor editor = preferences.edit();
                                 editor.putInt(getString(R.string.saved_bg_color), selectedColor);
-                                putData();
                                 editor.commit();
+                                putData();
                             }
                         })
                         .setNegativeButton("cancel", new DialogInterface.OnClickListener() {
@@ -168,6 +170,22 @@ public class TextWatchConfig extends AppCompatActivity implements GoogleApiClien
             }
         });
 
+        //Show Date
+        findViewById(R.id.dateCheckBox).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                CheckBox checkBox = (CheckBox) view;
+                if(checkBox.isChecked())
+                    mShowDate = true;
+                else
+                    mShowDate = false;
+                SharedPreferences.Editor editor = preferences.edit();
+                editor.putBoolean("DATE", mShowDate);
+                editor.commit();
+                putData();
+            }
+        });
+
         bgColorPreview = findViewById(R.id.bgcolor_preview);
         bgColorPreview.setBackgroundColor(preferences.getInt(getString(R.string.saved_bg_color), Color.parseColor(getString(R.string.default_background))));
         mBGColor = preferences.getInt(getString(R.string.saved_bg_color), Color.parseColor(getString(R.string.default_background)));
@@ -177,6 +195,9 @@ public class TextWatchConfig extends AppCompatActivity implements GoogleApiClien
         Log.d("", mTextColor + "");
         fontSpinner.setSelection(adapter.getPosition(preferences.getString(getString(R.string.saved_font), getString(R.string.default_font))));
         mTextFont = preferences.getString(getString(R.string.saved_font), getString(R.string.default_font));
+        mShowDate = preferences.getBoolean("DATE", false);
+        CheckBox checkBox = (CheckBox) findViewById(R.id.dateCheckBox);
+        checkBox.setChecked(preferences.getBoolean("DATE", false));
     }
 
     @Override
@@ -231,6 +252,7 @@ public class TextWatchConfig extends AppCompatActivity implements GoogleApiClien
         request.getDataMap().putInt("BG_COLOR", mBGColor);
         request.getDataMap().putInt("TEXT_COLOR", mTextColor);
         request.getDataMap().putString("FONT", mTextFont);
+        request.getDataMap().putBoolean("DATE", mShowDate);
         PutDataRequest dataRequest = request.asPutDataRequest();
         Wearable.DataApi.putDataItem(apiClient, dataRequest);
     }
