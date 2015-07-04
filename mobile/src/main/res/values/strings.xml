@@ -20,4 +20,5 @@
         <![CDATA[<a href="http://opensource.org/licenses/Apache-2.0">Apache License 2.0</a>]]></string>
     <string name="action_about">About</string>
     <string name="about">Text Watch Face by Kevin Renner: version </string>
+    <string name="date_text">Show Date</string>
 </resources>
